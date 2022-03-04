@@ -1,5 +1,8 @@
 # About
-Visualizes heatmap data as a single image or as a movie.
+Visualizes eyetracker data as a heatmap. A single image of the interaction or a movie of the sequence of interactions can be generated.
+
+
+# Usage
 
 Data should be in [x, y, ...] CSV format (n.b. the first two rows are required):
 
@@ -14,7 +17,7 @@ X Gaze Data, Y Gaze Data, Time
 ...
 ```
 
-# Usage
+Run the script using either short or long parameters:
 
 ```bash
 $ python3 heatmapviz.py -d example.csv -f png
