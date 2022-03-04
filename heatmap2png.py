@@ -22,6 +22,10 @@ if __name__ == "__main__":
         reader = csv.reader(f)
         data = list(reader)
 
+    # extract the screen resolution from the CSV data
+    x, y = data[1][2].split(' x ')
+    resolution = tuple([int(x), int(y)])
+
     # pull the x,y coords from rows of data
     # - ignores timestamp and any other columns after [x, y, ...]
     # - ignores the first two lines of file which are not coord data
@@ -33,4 +37,4 @@ if __name__ == "__main__":
     # - reuses the original filename and changes extension to ".png"
     hm = heatmap.Heatmap()
     outfile = "/" + args.filepath.split('.')[0] + ".png"
-    img = hm.heatmap(coord_data).save(folderpath + outfile)
+    img = hm.heatmap(coord_data, size=resolution).save(folderpath + outfile)

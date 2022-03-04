@@ -31,24 +31,22 @@ if __name__ == "__main__":
         freader = csv.reader(csvfile)
         r1 = next(freader)
         r2 = next(freader)
-        mysize = r2[2].strip()
-        mysize = mysize.split(" x ")
-        mysize = list(map(int, mysize))
-        mysize = tuple(mysize)
+        x, y = r2[2].strip().split(" x ")
+        resolution = tuple([int(x), int(y)])
         for row in freader:
             mod = (mod + 1)%2 #take every other point
             if mod == 1:
                 counter += 1
-                pts.append((int(row[0]), mysize[1] - int(row[1])))
+                pts.append((int(row[0]), resolution[1] - int(row[1])))
                 if counter%25==0: #50 for interval of a second, 25 for half second
                     imgno += 1
-                    img = hm.heatmap(pts, size = mysize, area = ((0,0), mysize), dotsize=75) #scale dotsize up?
+                    img = hm.heatmap(pts, size = resolution, area = ((0,0), resolution), dotsize=75) #scale dotsize up?
                     img.save(folderpath+ "/imgs/hm" + str(imgno) + ".png")
                     pts = []
 
     if len(pts) > 0:
         imgno += 1
-        img = hm.heatmap(pts, size = mysize, area = ((0,0), mysize), dotsize=75)
+        img = hm.heatmap(pts, size = resolution, area = ((0,0), resolution), dotsize=75)
         img.save(folderpath + "/imgs/hm" + str(imgno) + ".png")
 
     #Generate timelapse video
