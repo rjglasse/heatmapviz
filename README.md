@@ -9,3 +9,20 @@ $ python3 heatmap2png.py -f example.csv
 ```
 
 The results will be output to a `png` or `mp4` subfolder.
+
+# Requirements
+The heatmap is processed using this library: https://github.com/kwauchope/heatmap
+
+Clone it to your local system and then install as follows:
+
+```bash
+$ git clone https://github.com/kwauchope/heatmap.git
+$ cd heatmap-master
+$ python3 setup.py install
+```
+
+The movie is created by https://pypi.org/project/moviepy/ and can be installed using pip:
+
+```bash
+$ pip3 install moviepy
+```
