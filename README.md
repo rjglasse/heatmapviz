@@ -1,16 +1,30 @@
 # About
-Simple scripts to handle heatmap data. Create a single image with `heatmap2png.py` or create a movie with `heatmap2mp4.py`.
+Visualizes heatmap data as a single image or as a movie.
 
-# Usage
-Both scripts work the same:
+Data should be in [x, y, ...] CSV format (n.b. the first two rows are required):
 
-```bash
-$ python3 heatmap2png.py -f example.csv
-
-$ python3 heatmap2mp4.py -f example.csv
+```csv
+X Gaze Data, Y Gaze Data, Time
+(0, 0), 1920 x 1080
+912,408,866483295
+910,402,866483304
+909,399,866483314
+908,399,866483342
+907,401,866483347
+...
 ```
 
-The results will be output to a `png` or `mp4` subfolder.
+# Usage
+
+```bash
+$ python3 heatmapviz.py -d example.csv -f png
+
+$ python3 heatmapviz.py --data example.csv --format mp4
+```
+
+The results will be output to a `png` or `mp4` subfolder:
+
+![alt text](/example.png)
 
 # Requirements
 The heatmap is processed using this library: https://github.com/kwauchope/heatmap
