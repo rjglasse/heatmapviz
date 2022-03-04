@@ -15,6 +15,8 @@ if __name__ == "__main__":
     if not os.path.exists(folderpath):
         os.makedirs(folderpath)
 
+    print("Saving heatmap to " + folderpath)
+
     # read CSV and convert to a list of ['x', 'y', 'timestamp'] elements
     with open(args.filepath, newline='') as f:
         reader = csv.reader(f)
