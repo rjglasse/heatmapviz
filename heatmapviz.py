@@ -36,6 +36,10 @@ def create_mp4():
     counter = 0
     imgno = 0
 
+    # generate subfolder for frames of video
+    if not os.path.exists(folderpath+"/imgs"):
+        os.makedirs(folderpath+"/imgs")
+
     # generate heatmaps over time intervals of a second
     with open(args.datafile, 'r') as csvfile:
         freader = csv.reader(csvfile)
