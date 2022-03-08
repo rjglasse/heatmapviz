@@ -34,7 +34,8 @@ def create_png(et_data, resolution):
     # generate heatmap and save to PNG
     h_map = heatmap.Heatmap()
     outfile = "/" + args.datafile.split('.')[0] + ".png"
-    h_map.heatmap(coord_data, size=resolution).save(folderpath + outfile)
+    h_map.heatmap(coord_data, size=resolution, scheme=args.scheme,
+        dotsize=args.point_size, opacity=args.opacity).save(folderpath + outfile)
 
 def create_mp4(et_data, resolution):
     """Creates a movie from a sequence of eyetracking heatmap images in MP4 format."""
@@ -59,13 +60,15 @@ def create_mp4(et_data, resolution):
             pts.append((int(row[0]), resolution[1] - int(row[1])))
             if counter%25==0: #50 for interval of a second, 25 for half second
                 imgno += 1
-                img = h_map.heatmap(pts, size=resolution, area=((0,0), resolution), dotsize=75)
+                img = h_map.heatmap(pts, size=resolution, area=((0,0), resolution),
+                    dotsize=args.point_size, scheme=args.scheme, opacity=args.opacity)
                 img.save(folderpath+ "/imgs/hm" + str(imgno) + ".png")
                 pts = []
 
     if len(pts) > 0:
         imgno += 1
-        img = h_map.heatmap(pts, size = resolution, area = ((0,0), resolution), dotsize=75)
+        img = h_map.heatmap(pts, size = resolution, area = ((0,0), resolution),
+            dotsize=args.point_size, scheme=args.scheme, opacity=args.opacity)
         img.save(folderpath + "/imgs/hm" + str(imgno) + ".png")
 
     # generate timelapse video
@@ -94,6 +97,13 @@ def get_user_args():
     parser.add_argument('-d', '--datafile', help='input CSV file', required=True)
     parser.add_argument('-f', '--format', help='output format [png, mp4]', \
         choices=['png', 'mp4'], required=True)
+    parser.add_argument('-s', '--scheme', help='colour scheme for heatmap \
+        [classic, fire, omg, pbj, pgaitch]', choices=['classic', 'fire', \
+        'omg', 'pbj', 'pgaitch'], default='classic')
+    parser.add_argument('-o', '--opacity', help='strength of a single point \
+        in heatmap (from 0-255)', default=128, type=int)
+    parser.add_argument('-p', '--point-size', help='size of a single point \
+        in heatmap', default=150, type=int)
     return parser.parse_args()
 
 if __name__ == '__main__':
