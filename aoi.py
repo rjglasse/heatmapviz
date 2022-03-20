@@ -36,19 +36,20 @@ def read_aoi_data(filename):
 def get_aoi(x_coord, y_coord, list_of_aois):
     """Get the area of interest for the given coordinate or return false"""
     for aoi in list_of_aois:
-        if x_coord > aoi["x1_coord"] and x_coord < aoi["x2_coord"] \
-            and y_coord > aoi["y1_coord"] and y_coord < aoi["y2_coord"]:
+        if  aoi["x1_coord"] < x_coord < aoi["x2_coord"] \
+            and aoi["y1_coord"] < y_coord < aoi["y2_coord"]:
             return aoi["area"]
     return False
 
 def create_aoi_events():
     """Build a list of area of interest events [area, gazepoints, duration, dispersion]"""
     # create output folder
-    folderpath = "./aoi/" + args.datafile.split('.')[0]
+    folderpath = "./results/csv/" + os.path.split(args.datafile)[1].split(".")[0]
+    print(folderpath)
     if not os.path.exists(folderpath):
         os.makedirs(folderpath)
     print("Saving aoi events to " + folderpath)
-
+    # create list of aoi_events
     aoi_events = []
     aoi_current = ""
     for row in data[2:]:
@@ -61,39 +62,76 @@ def create_aoi_events():
         elif area:
             # new event, create a new aoi event
             aoi_current = area
-            aoi_events.append({"area":area, "points":[], "start":timestamp})
+            aoi_events.append({"area":area, "points":[], "start":timestamp, "end":timestamp})
             aoi_events[-1]["points"].append((x_coord, y_coord))
-    # TODO: calculate summary stats for duration and dispersion
+    # calculate duration and dispersion for aoi_events
+    outfile = "/" + os.path.split(args.datafile)[1].split(".")[0] + ".csv"
+    with open(folderpath+outfile, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(("area", "duration", "dispersion"))
+        for aoi_event in aoi_events:
+            aoi_event["duration"] = aoi_event["end"] - aoi_event["start"]
+            aoi_event["dispersion"] = dispersion(aoi_event["points"])
+            writer.writerow((aoi_event["area"], aoi_event["duration"], aoi_event["dispersion"]))
+
     return aoi_events
 
 def dispersion(points):
-    """Calculate the standard distance deviation for an area of interest event"""
+    """Calculate the standard distance for an area of interest event"""
     sum_x = 0
     sum_y = 0
     for point in points:
         sum_x += point[0]
         sum_y += point[1]
+
     avg_x = sum_x / len(points)
     avg_y = sum_y / len(points)
 
-    print("Mean Center: {0}, {1}".format(avg_x, avg_y))
     sum_of_sq_diff_x = 0.0
     sum_of_sq_diff_y = 0.0
-
-    for x, y in points:
-        diff_x = math.pow(x - avg_x, 2)
-        diff_y = math.pow(y - avg_y, 2)
+    for x_coord, y_coord in points:
+        diff_x = math.pow(x_coord - avg_x, 2)
+        diff_y = math.pow(y_coord - avg_y, 2)
         sum_of_sq_diff_x += diff_x
         sum_of_sq_diff_y += diff_y
+
     sum_of_results = (sum_of_sq_diff_x/len(points)) + (sum_of_sq_diff_y/len(points))
-    standard_distance = math.sqrt(sum_of_results)
-    print("Standard Distance: {0}". format(standard_distance))
-    return standard_distance
+    return math.sqrt(sum_of_results)
+
+def create_event_graph(aoi_events):
+    """Create a directed graph of events in dot/Graphviz and output as a png"""
+    # create output folder
+    folderpath = "./results/graph/" + os.path.split(args.datafile)[1].split('.')[0]
+    if not os.path.exists(folderpath):
+        os.makedirs(folderpath)
+    print("Saving graph to " + folderpath)
+
+    outfile = "/" + os.path.split(args.datafile)[1].split('.')[0] + ".dot"
+    with open(folderpath+outfile, 'w') as graph:
+        graph.write("digraph {\n")
+        edges = {}
+        source_vertex = aoi_events[0]["area"]
+        for event in aoi_events[1:]:
+            dest_vertex = event["area"]
+            edge = source_vertex + " -> " + dest_vertex
+            try:
+                edges[edge] += 1
+            except KeyError:
+                edges[edge] = 1
+            source_vertex = dest_vertex
+
+        for edge, count in edges.items():
+            graph.write("\t {0} [label={1}]\n".format(edge, count))
+
+        graph.write("}\n")
+
+def create_event_timeline(aoi_events):
+    """TODO: Create a barchart timeline of events and output as a png"""
+    return aoi_events
 
 if __name__ == '__main__':
     args = get_user_args()
     data = read_et_data(args.datafile)
     aois = read_aoi_data(args.aoifile)
-    # print(aois)
     events = create_aoi_events()
-    dispersion(events[0]["points"])
+    create_event_graph(events)
