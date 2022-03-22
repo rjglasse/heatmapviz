@@ -4,6 +4,9 @@ import os
 import argparse
 import csv
 import math
+import graphviz
+import numpy as np
+import matplotlib.pyplot as plt
 
 def get_user_args():
     """Parser for command line arguments."""
@@ -43,12 +46,13 @@ def get_aoi(x_coord, y_coord, list_of_aois):
 
 def create_aoi_events():
     """Build a list of area of interest events [area, gazepoints, duration, dispersion]"""
-    # create output folder
+    # create filename and output folder
+    outfile = "/" + os.path.split(args.datafile)[1].split(".")[0] + ".csv"
     folderpath = "./results/csv/" + os.path.split(args.datafile)[1].split(".")[0]
     print(folderpath)
     if not os.path.exists(folderpath):
         os.makedirs(folderpath)
-    print("Saving aoi events to " + folderpath)
+    print("Saving events to " + folderpath)
     # create list of aoi_events
     aoi_events = []
     aoi_current = ""
@@ -65,7 +69,6 @@ def create_aoi_events():
             aoi_events.append({"area":area, "points":[], "start":timestamp, "end":timestamp})
             aoi_events[-1]["points"].append((x_coord, y_coord))
     # calculate duration and dispersion for aoi_events
-    outfile = "/" + os.path.split(args.datafile)[1].split(".")[0] + ".csv"
     with open(folderpath+outfile, 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(("area", "duration", "dispersion"))
@@ -99,35 +102,65 @@ def dispersion(points):
     return math.sqrt(sum_of_results)
 
 def create_event_graph(aoi_events):
-    """Create a directed graph of events in dot/Graphviz and output as a png"""
-    # create output folder
+    """Create a directed graph of area of interest events"""
+    # create filename and output folder
+    outfile = os.path.split(args.datafile)[1].split('.')[0]
     folderpath = "./results/graph/" + os.path.split(args.datafile)[1].split('.')[0]
     if not os.path.exists(folderpath):
         os.makedirs(folderpath)
     print("Saving graph to " + folderpath)
+    # find and count edges
+    edges = {}
+    source_vertex = aoi_events[0]["area"]
+    for event in aoi_events[1:]:
+        dest_vertex = event["area"]
+        edge = source_vertex + " -> " + dest_vertex
+        try:
+            edges[edge] += 1
+        except KeyError:
+            edges[edge] = 1
+        source_vertex = dest_vertex
+    # generate graphviz
+    dot = graphviz.Digraph(outfile, comment="test", format="pdf")
+    for edge, count in edges.items():
+        src, dst = edge.split(" -> ")
+        dot.edge(src, dst, label=str(count))
+    # render and show graph immediately
+    dot.render(directory=folderpath)
 
-    outfile = "/" + os.path.split(args.datafile)[1].split('.')[0] + ".dot"
-    with open(folderpath+outfile, 'w') as graph:
-        graph.write("digraph {\n")
-        edges = {}
-        source_vertex = aoi_events[0]["area"]
-        for event in aoi_events[1:]:
-            dest_vertex = event["area"]
-            edge = source_vertex + " -> " + dest_vertex
-            try:
-                edges[edge] += 1
-            except KeyError:
-                edges[edge] = 1
-            source_vertex = dest_vertex
-
-        for edge, count in edges.items():
-            graph.write("\t {0} [label={1}]\n".format(edge, count))
-
-        graph.write("}\n")
-
-def create_event_timeline(aoi_events):
-    """TODO: Create a barchart timeline of events and output as a png"""
-    return aoi_events
+def create_event_chart(aoi_events):
+    """: Create a barchart timeline of events and output to file"""
+    # create filename and output folder
+    outfile = os.path.split(args.datafile)[1].split('.')[0]
+    folderpath = "./results/chart/" + os.path.split(args.datafile)[1].split('.')[0]
+    if not os.path.exists(folderpath):
+        os.makedirs(folderpath)
+    print("Saving graph to " + folderpath)
+    # extract data to lists
+    areas = []
+    durations = []
+    dispersions = []
+    for event in aoi_events:
+        areas.append(event["area"])
+        durations.append(event["duration"])
+        dispersions.append(event["dispersion"])
+    # plot chart for duration
+    y_pos = np.arange(len(areas))
+    fig = plt.figure()
+    plt.bar(y_pos, durations, align='center', alpha=0.5)
+    plt.xticks(y_pos, areas, rotation='vertical')
+    plt.ylabel('Duration (??)')
+    plt.title('Areas of Interest over Time')
+    plt.tight_layout()
+    fig.savefig(folderpath+"/"+outfile+"-duration.pdf")
+    # plot chart for dispersion
+    fig = plt.figure()
+    plt.bar(y_pos, dispersions, align='center', alpha=0.5)
+    plt.xticks(y_pos, areas, rotation='vertical')
+    plt.ylabel('Dispersion (SDD)')
+    plt.title('Areas of Interest over Time')
+    plt.tight_layout()
+    fig.savefig(folderpath+"/"+outfile+"-dispersion.pdf")
 
 if __name__ == '__main__':
     args = get_user_args()
@@ -135,3 +168,4 @@ if __name__ == '__main__':
     aois = read_aoi_data(args.aoifile)
     events = create_aoi_events()
     create_event_graph(events)
+    create_event_chart(events)
