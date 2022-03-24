@@ -121,6 +121,7 @@ def create_event_graph(aoi_events):
             edges[edge] = 1
         source_vertex = dest_vertex
     # generate graphviz
+    print(folderpath, outfile)
     dot = graphviz.Digraph(outfile, comment="test", format="pdf")
     for edge, count in edges.items():
         src, dst = edge.split(" -> ")
@@ -129,7 +130,7 @@ def create_event_graph(aoi_events):
     dot.render(directory=folderpath)
 
 def create_event_chart(aoi_events):
-    """: Create a barchart timeline of events and output to file"""
+    """Create a barchart timeline of events and output to file"""
     # create filename and output folder
     outfile = os.path.split(args.datafile)[1].split('.')[0]
     folderpath = "./results/chart/" + os.path.split(args.datafile)[1].split('.')[0]
