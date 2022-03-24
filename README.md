@@ -1,9 +1,7 @@
 # About
 Analyse user gaze data from an eye tracker.
 
-Output can be a heatmap image or movie, a directed graph of areas of interest that have been visited and how often, or barcharts of both the duration and dispersion of gaze within an area of interest.
-
-![alt text](/example.png)
+Output can be a heatmap image or movie, a graph of areas of interest that have been visited and how often, or barcharts of both the duration and dispersion of gaze within an area of interest.
 
 # Usage
 There are two main types of input data: _gaze data_ and _area of interest_ data.
@@ -38,13 +36,38 @@ $ python3 gaze.py graph --data-file example.csv --aoi-file example-aoi.csv
 $ python3 gaze.py chart -d example.csv -a example-aoi.csv
 ```
 
-Results are output to the `./results/example/` subfolder and organised by the output type.
-
-For more help and additional parameters, run:
+Results are output to the `./results/example/` subfolder and organised by the
+output type. For more help and additional parameters, run:
 
 ```bash
 $ python3 gaze.py -h
 ```
+
+# Output types
+Using, `gaze.py graph` will output a heatmap:
+
+![alt text](/example.png)
+
+
+If areas of interest have been defined, then they will be superimposed onto the heatmap.
+
+> TODO: plot areas of interest on heatmap with black rectangles.
+
+Using `gaze.py graph` will output a graph of the count of transitions between the areas of interest:
+
+![alt text](/example.gv.png)
+
+Using `gaze.py chart` will create two barcharts for duration and dispersion within the areas of interest over time:
+
+![alt text](/example-duration.png)
+
+The first chart plots a timeline of duration in each area of interest. The units are based on the eyetracker data.
+
+![alt text](/example-dispersion.png)
+
+The second chart plots a timeline of dispersion in each area of interest. Dispersion is measured using the standard distance deviation (see: https://pro.arcgis.com/en/pro-app/2.8/tool-reference/spatial-statistics/standard-distance.htm).
+
+
 
 # Requirements
 The heatmap is processed using: https://github.com/kwauchope/heatmap
