@@ -1,8 +1,14 @@
 # About
-Visualizes eyetracker data as a heatmap. A single image of the interaction or a movie of the sequence of interactions can be generated.
+Analyse user gaze data from an eye tracker.
+
+Output can be a heatmap image or movie, a directed graph of areas of interest that are visited, or barcharts of the duration and dispersion of gaze within an area of interest.
+
+![alt text](/example.png)
 
 # Usage
-Data should be in [x, y, ...] CSV format (n.b. the first two rows are required):
+There are two main types of input data: gaze data and area of interest data.
+
+Gaze data should be in [x, y, ...] CSV format (n.b. the first two rows are required):
 
 ```csv
 X Gaze Data, Y Gaze Data, Time
@@ -15,25 +21,24 @@ X Gaze Data, Y Gaze Data, Time
 ...
 ```
 
-Run the script using either short or long parameters:
+Area of interest data consist of named rectangles in CSV format:
+
+```
+area_1, 100, 100, 200, 200
+area_2, 200, 200, 300, 300
+area_3, 300, 300, 400, 400
+```
+
+Run the script using the appropriate sub-commands for the desired output:
 
 ```bash
-$ python3 heatmapviz.py -d example.csv -f png
-
-$ python3 heatmapviz.py --data example.csv --format mp4
+$ python3 gaze.py heatmap --data-file example.csv --format png
+$ python3 gaze.py heatmap -d example.csv -f m4
+$ python3 gaze.py graph --data-file example.csv --aoi-file example-aoi.csv
+$ python3 gaze.py chart -d example.csv -a example-aoi.csv
 ```
 
-The results will be output to a `png` or `mp4` subfolder:
-
-![alt text](/example.png)
-
-The heatmap can be further refined with the following parameters:
-
-```
--p --point-size     pixel size of each sample point in heatmap [default is 150]
--s --scheme         colour scheme for heatmap [default is classic, others are fire, omg, pbj, pgaitch]
--o --opacity        change the opacity for the heatmap [default is 128]
-```
+Results are output to the `./results/example/` subfolder and organised by output.
 
 # Requirements
 The heatmap is processed using this library: https://github.com/kwauchope/heatmap
@@ -46,8 +51,24 @@ $ cd heatmap-master
 $ python3 setup.py install
 ```
 
-The movie is created by https://pypi.org/project/moviepy/ and can be installed using pip:
+The heatmap video is created by https://pypi.org/project/moviepy/ and can be installed using pip3:
 
 ```bash
 $ pip3 install moviepy
 ```
+
+The graph is created using [Graphviz](https://www.graphviz.org), which you can find here:
+
+https://www.graphviz.org/download/
+
+Once you have installed Graphviz, you can then install its Python library using pip3
+
+```bash
+$ pip3 install graphviz
+```
+
+The charts are created using Matplotlib and can be installed by following instructions here:
+
+https://matplotlib.org/stable/users/installing/index.html
+
+Obs: You may already have some of these requirements; so it is worth checking or using a new virtual environment (see: https://docs.python.org/3/tutorial/venv.html)
