@@ -44,7 +44,7 @@ $ python3 gaze.py -h
 ```
 
 # Output types
-Using, `gaze.py graph` will output a heatmap:
+Using, `gaze.py heatmap` will output a heatmap:
 
 ![alt text](/example.png)
 
