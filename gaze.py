@@ -9,6 +9,7 @@ import graphviz
 import numpy as np
 import matplotlib.pyplot as plt
 from moviepy.editor import ImageSequenceClip
+from PIL import Image, ImageDraw
 
 def read_et_data(filename):
     """Read eyetracking CSV file and convert to a list of ['x', 'y', 'timestamp'] elements."""
@@ -45,7 +46,22 @@ def create_heatmap_image(et_data, resolution):
     h_map = heatmap.Heatmap()
     h_map.heatmap(coord_data, size=resolution, scheme=args.scheme,
         dotsize=args.point_size, opacity=args.opacity).save(folderpath + outfile + ".png")
+    # overlay areas of interest if required
+    if args.aoi_file:
+        overlay_areas_of_interest(folderpath + outfile + ".png")
+
     print("Heatmap image saved to " + folderpath + outfile + ".png")
+
+def overlay_areas_of_interest(image_path):
+    """"Draw the areas of interest over a heatmap image"""
+    aois = read_aoi_data(args.aoi_file)
+    with Image.open(image_path) as overlay_image:
+        overlay = ImageDraw.Draw(overlay_image)
+        for aoi in aois:
+            overlay.rectangle([(int(aoi["x1_coord"]), int(aoi["y1_coord"])),
+                (int(aoi["x2_coord"]), int(aoi["y2_coord"]))], outline="black")
+
+        overlay_image.save(image_path)
 
 def create_heatmap_video(et_data, resolution):
     """Creates a movie from a sequence of eyetracking heatmap images in MP4 format."""
@@ -59,7 +75,6 @@ def create_heatmap_video(et_data, resolution):
     mod = 0
     counter = 0
     imgno = 0
-
     # generate heatmaps over time intervals of a second
     for row in et_data[2:]:
         mod = (mod + 1)%2 # take every other point
@@ -83,6 +98,7 @@ def create_heatmap_video(et_data, resolution):
     image_list = []
     for index in range(imgno):
         image_list.append(folderpath + "/frames/" + outfile + "-" +  str(index+1)+".png")
+
     my_clip = ImageSequenceClip(image_list, fps=2)
     outfile += ".mp4"
     my_clip.write_videofile(folderpath + outfile, codec="mpeg4",
@@ -274,6 +290,8 @@ def get_user_args():
         help='size of a single point in heatmap',
         default=150,
         type=int)
+    parser_heatmap.add_argument('-a', '--aoi-file',
+        help='Area of interest file')
     parser_heatmap.set_defaults(func=create_heatmap)
     # graph sub-command
     parser_graph = subparsers.add_parser('graph',
