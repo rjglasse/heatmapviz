@@ -30,10 +30,14 @@ area_3, 300, 300, 400, 400
 Run the script using the appropriate sub-commands for the desired output:
 
 ```bash
-$ python3 gaze.py heatmap --data-file example.csv --format png
-$ python3 gaze.py heatmap -d example.csv -f mp4
-$ python3 gaze.py graph --data-file example.csv --aoi-file example-aoi.csv
-$ python3 gaze.py chart -d example.csv -a example-aoi.csv
+# create heatmap png, mp4 or png with superimposed areas of interest
+$ python3 gaze.py heatmap --data-file data/example.csv --format png
+$ python3 gaze.py heatmap -d data/example.csv -f mp4
+$ python3 gaze.py heatmap -d data/example.csv -a data/example-aoi.csv -f png
+# create area of interest transition graph
+$ python3 gaze.py graph --data-file data/example.csv --aoi-file data/example-aoi.csv
+# create area of interest duration and dispersion charts
+$ python3 gaze.py chart -d data/example.csv -a data/example-aoi.csv
 ```
 
 Results are output to the `./results/example/` subfolder and organised by the
@@ -43,31 +47,30 @@ output type. For more help and additional parameters, run:
 $ python3 gaze.py -h
 ```
 
+Tip, using `xargs open` (at least for macos) will directly open output files:
+
+```bash
+$ python3 gaze.py heatmap --data-file data/example.csv --format png | xargs open
+```
+
 # Output types
-Using, `gaze.py heatmap` will output a heatmap:
+Using, `gaze.py heatmap` will output a heatmap with the specified areas of interest superimposed:
 
-![alt text](/example.png)
-
-
-If areas of interest have been defined, then they will be superimposed onto the heatmap.
-
-> TODO: plot areas of interest on heatmap with black rectangles.
+![alt text](/results/example/heatmap/png/example.png)
 
 Using `gaze.py graph` will output a graph of the count of transitions between the areas of interest:
 
-![alt text](/example.gv.png)
+![alt text](/results/example/graph/example.gv.png)
 
 Using `gaze.py chart` will create two barcharts for duration and dispersion within the areas of interest over time:
 
-![alt text](/example-duration.png)
+![alt text](/results/example/chart/example-duration.png)
 
 The first chart plots a timeline of duration in each area of interest. The units are based on the eyetracker data.
 
-![alt text](/example-dispersion.png)
+![alt text](/results/example/chart/example-dispersion.png)
 
-The second chart plots a timeline of dispersion in each area of interest. Dispersion is measured using the standard distance deviation (see: https://pro.arcgis.com/en/pro-app/2.8/tool-reference/spatial-statistics/standard-distance.htm).
-
-
+The second chart plots a timeline of dispersion in each area of interest. Dispersion is measured using the [standard distance deviation](https://pro.arcgis.com/en/pro-app/2.8/tool-reference/spatial-statistics/standard-distance.htm).
 
 # Requirements
 The heatmap is processed using: https://github.com/kwauchope/heatmap
