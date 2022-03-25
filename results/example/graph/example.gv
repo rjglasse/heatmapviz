@@ -1,0 +1,8 @@
+// test
+digraph example {
+	Area_1 -> Area_2 [label=2]
+	Area_2 -> Area_3 [label=3]
+	Area_3 -> Area_2 [label=2]
+	Area_3 -> Area_1 [label=2]
+	Area_1 -> Area_3 [label=1]
+}
