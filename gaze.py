@@ -9,7 +9,9 @@ import graphviz
 import numpy as np
 import matplotlib.pyplot as plt
 from moviepy.editor import ImageSequenceClip
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
+
+aois = None
 
 def read_et_data(filename):
     """Read eyetracking CSV file and convert to a list of ['x', 'y', 'timestamp'] elements."""
@@ -39,27 +41,32 @@ def create_heatmap_image(et_data, resolution):
     # pull the x, y coordinate pairs from rows of data
     coord_data = []
     for row in et_data[2:]:
-        coord_data.append((int(row[0]),int(row[1])))
+        coord_data.append((int(row[0]), resolution[1] - int(row[1])))
 
     # generate heatmap and save to PNG
     outfile, folderpath = get_results_location("heatmap")
     h_map = heatmap.Heatmap()
-    h_map.heatmap(coord_data, size=resolution, scheme=args.scheme,
+    h_map_image = h_map.heatmap(coord_data, size=resolution, area=((0,0), resolution), scheme=args.scheme,
         dotsize=args.point_size, opacity=args.opacity).save(folderpath + outfile + ".png")
     # overlay areas of interest if required
     if args.aoi_file:
         overlay_areas_of_interest(folderpath + outfile + ".png")
 
-    print("Heatmap image saved to " + folderpath + outfile + ".png")
+    print(folderpath + outfile + ".png")
 
 def overlay_areas_of_interest(image_path):
     """"Draw the areas of interest over a heatmap image"""
-    aois = read_aoi_data(args.aoi_file)
+    global aois
+    if aois is None:
+        aois = read_aoi_data(args.aoi_file)
     with Image.open(image_path) as overlay_image:
         overlay = ImageDraw.Draw(overlay_image)
+        overlay_font = ImageFont.truetype("Arial Bold.ttf", 16)
         for aoi in aois:
+            overlay.text((int(aoi["x1_coord"]+5), int(aoi["y1_coord"]+7)), aoi["area"],(0,0,0),
+                font=overlay_font)
             overlay.rectangle([(int(aoi["x1_coord"]), int(aoi["y1_coord"])),
-                (int(aoi["x2_coord"]), int(aoi["y2_coord"]))], outline="black")
+                (int(aoi["x2_coord"]), int(aoi["y2_coord"]))], outline="black", width=2)
 
         overlay_image.save(image_path)
 
@@ -86,13 +93,19 @@ def create_heatmap_video(et_data, resolution):
                 img = h_map.heatmap(pts, size=resolution, area=((0,0), resolution),
                     dotsize=args.point_size, scheme=args.scheme, opacity=args.opacity)
                 img.save(folderpath + "/frames/" + outfile + "-" + str(imgno) + ".png")
+                # overlay areas of interest if required
+                if args.aoi_file:
+                    overlay_areas_of_interest(folderpath + "/frames/" + outfile + "-" + str(imgno) + ".png")
                 pts = []
 
     if len(pts) > 0:
         imgno += 1
-        img = h_map.heatmap(pts, size = resolution, area = ((0,0), resolution),
+        img = h_map.heatmap(pts, size=resolution, area=((0,0), resolution),
             dotsize=args.point_size, scheme=args.scheme, opacity=args.opacity)
         img.save(folderpath + "/frames/" + outfile + "-" + str(imgno) + ".png")
+        # overlay areas of interest if required
+        if args.aoi_file:
+            overlay_areas_of_interest(folderpath + "/frames/" + outfile + "-" + str(imgno) + ".png")
 
     # generate timelapse video
     image_list = []
@@ -103,7 +116,7 @@ def create_heatmap_video(et_data, resolution):
     outfile += ".mp4"
     my_clip.write_videofile(folderpath + outfile, codec="mpeg4",
         audio=False, verbose=False, logger=None)
-    print("Heatmap video saved to "+folderpath+outfile)
+    print(folderpath+outfile)
 
     #Uncomment to automatically create overlay once the video is created
     #Making the overlay
@@ -173,7 +186,6 @@ def create_aoi_events(data, aois):
             aoi_event["dispersion"] = dispersion(aoi_event["points"])
             writer.writerow((aoi_event["area"], aoi_event["duration"], aoi_event["dispersion"]))
 
-    print("Area of interest events saved to " + folderpath + outfile + ".csv")
     return aoi_events
 
 def dispersion(points):
@@ -222,7 +234,7 @@ def create_event_graph():
         dot.edge(src, dst, label=str(count))
 
     dot.render(directory=folderpath)
-    print("Graph saved to "+folderpath+outfile+".gv.pdf")
+    print(folderpath+outfile+".gv.pdf")
 
 def create_event_chart():
     """Create duration and dispersion barcharts for a timeline of area of interest events."""
@@ -249,7 +261,7 @@ def create_event_chart():
     plt.tight_layout()
     duration_path = folderpath + outfile + "-duration.pdf"
     fig.savefig(duration_path)
-    print("Duration chart saved to " + duration_path)
+    print(duration_path)
     # plot chart for dispersion
     fig = plt.figure()
     plt.bar(y_pos, dispersions, align='center', alpha=0.5)
@@ -259,7 +271,7 @@ def create_event_chart():
     plt.tight_layout()
     dispersion_path = folderpath + outfile + "-dispersion.pdf"
     fig.savefig(dispersion_path)
-    print("Dispersion chart saved to " + dispersion_path)
+    print(dispersion_path)
 
 def get_user_args():
     """Parser for command line arguments."""
