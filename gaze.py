@@ -228,13 +228,13 @@ def create_event_graph():
         source_vertex = dest_vertex
     # generate graphviz
     outfile, folderpath = get_results_location("graph")
-    dot = graphviz.Digraph(outfile, comment="test", format="pdf")
+    dot = graphviz.Digraph(outfile, comment="test", format="png")
     for edge, count in edges.items():
         src, dst = edge.split(" -> ")
         dot.edge(src, dst, label=str(count))
 
     dot.render(directory=folderpath)
-    print(folderpath+outfile+".gv.pdf")
+    print(folderpath+outfile+".gv.png")
 
 def create_event_chart():
     """Create duration and dispersion barcharts for a timeline of area of interest events."""
@@ -259,7 +259,7 @@ def create_event_chart():
     plt.ylabel('Duration (??)')
     plt.title('Areas of Interest over Time')
     plt.tight_layout()
-    duration_path = folderpath + outfile + "-duration.pdf"
+    duration_path = folderpath + outfile + "-duration.png"
     fig.savefig(duration_path)
     print(duration_path)
     # plot chart for dispersion
@@ -269,7 +269,7 @@ def create_event_chart():
     plt.ylabel('Dispersion (SDD)')
     plt.title('Areas of Interest over Time')
     plt.tight_layout()
-    dispersion_path = folderpath + outfile + "-dispersion.pdf"
+    dispersion_path = folderpath + outfile + "-dispersion.png"
     fig.savefig(dispersion_path)
     print(dispersion_path)
 
