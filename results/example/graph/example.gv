@@ -1,8 +1,8 @@
 // test
 digraph example {
-	area_1 -> area_2 [label=2]
-	area_2 -> area_3 [label=3]
-	area_3 -> area_2 [label=2]
-	area_3 -> area_1 [label=2]
-	area_1 -> area_3 [label=1]
+	Area_1 -> Area_2 [label=2]
+	Area_2 -> Area_3 [label=3]
+	Area_3 -> Area_2 [label=2]
+	Area_3 -> Area_1 [label=2]
+	Area_1 -> Area_3 [label=1]
 }

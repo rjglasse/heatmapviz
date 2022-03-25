@@ -6,7 +6,7 @@ Output can be a heatmap image or movie, a graph of areas of interest that have b
 # Usage
 There are two main types of input data: _gaze data_ and _area of interest_ data.
 
-Gaze data should be in [x, y, timestamp] CSV format (n.b. the first two rows are required to extract the resolution):
+Gaze data should be in [x, y, timestamp] CSV format (n.b. the first two rows are required to extract the resolution). See [data/example.csv](data/example.csv) for an example).
 
 ```csv
 X Gaze Data, Y Gaze Data, Time
@@ -19,23 +19,25 @@ X Gaze Data, Y Gaze Data, Time
 ...
 ```
 
-Area of interest data should be in [name, x1, y1, x2, y2] CSV format:
+Area of interest data should be in [name, x1, y1, x2, y2] CSV format. See [data/example-aoi.csv](data/example-aoi.csv) for an example):
 
 ```
-area_1, 100, 100, 200, 200
-area_2, 200, 200, 300, 300
-area_3, 300, 300, 400, 400
+Area_1, 50, 150, 500, 300
+Area_2, 700, 500, 1200, 700
+Area_3, 500, 900, 1000, 1000
 ```
 
-Run the script using the appropriate sub-commands for the desired output:
+Run the script using the appropriate sub-commands and long/short parameters for the desired output:
 
 ```bash
 # create heatmap png, mp4 or png with superimposed areas of interest
 $ python3 gaze.py heatmap --data-file data/example.csv --format png
 $ python3 gaze.py heatmap -d data/example.csv -f mp4
 $ python3 gaze.py heatmap -d data/example.csv -a data/example-aoi.csv -f png
+
 # create area of interest transition graph
 $ python3 gaze.py graph --data-file data/example.csv --aoi-file data/example-aoi.csv
+
 # create area of interest duration and dispersion charts
 $ python3 gaze.py chart -d data/example.csv -a data/example-aoi.csv
 ```
@@ -47,7 +49,7 @@ output type. For more help and additional parameters, run:
 $ python3 gaze.py -h
 ```
 
-Tip, using `xargs open` (at least for macos) will directly open output files:
+Tip, using `xargs open` (for macos) or `xargs mimeopen` (for macos) will directly open output files:
 
 ```bash
 $ python3 gaze.py heatmap --data-file data/example.csv --format png | xargs open
@@ -57,6 +59,8 @@ $ python3 gaze.py heatmap --data-file data/example.csv --format png | xargs open
 Using, `gaze.py heatmap` will output a heatmap with the specified areas of interest superimposed:
 
 ![alt text](/results/example/heatmap/png/example.png)
+
+An example of the movie result is given [here](/results/example/heatmap/mp4/example.mp4)
 
 Using `gaze.py graph` will output a graph of the count of transitions between the areas of interest:
 
