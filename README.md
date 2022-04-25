@@ -49,7 +49,7 @@ output type. For more help and additional parameters, run:
 $ python3 gaze.py -h
 ```
 
-Tip, using `xargs open` (for macos) or `xargs mimeopen` (for macos) will directly open output files:
+Tip, using `xargs open` (for macos) or `xargs mimeopen` (for Linux) will directly open output files:
 
 ```bash
 $ python3 gaze.py heatmap --data-file data/example.csv --format png | xargs open
