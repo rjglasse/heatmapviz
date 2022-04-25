@@ -1,4 +1,4 @@
-# About
+# Fbout
 Analyse user gaze data from an eye tracker.
 
 Output can be a heatmap image or movie, a graph of areas of interest that have been visited and how often, or barcharts of both the duration and dispersion of gaze within an area of interest.
