@@ -230,15 +230,14 @@ def create_event_graph():
     outfile, folderpath = get_results_location("graph")
     dot = graphviz.Digraph(outfile, comment="test", format="png")
     # create a group for controlling layout
-    dot.attr('node', group='a')
+    dot.attr('node', group='a', fontname='Helvetica')
+    dot.attr('edge', fontname='Helvetica')
     for aoi in aoi_data:
         dot.node(aoi['area'])
-
     # draw edges and transitions
     for edge, count in edges.items():
         src, dst = edge.split(" -> ")
         dot.edge(src, dst, label=str(count))
-
     # force layout to be consistent with invisible edges
     dot.attr('edge', style='invis')
     src_aoi = aoi_data[0]
