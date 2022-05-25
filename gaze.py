@@ -229,9 +229,22 @@ def create_event_graph():
     # generate graphviz
     outfile, folderpath = get_results_location("graph")
     dot = graphviz.Digraph(outfile, comment="test", format="png")
+    # create a group for controlling layout
+    dot.attr('node', group='a')
+    for aoi in aoi_data:
+        dot.node(aoi['area'])
+
+    # draw edges and transitions
     for edge, count in edges.items():
         src, dst = edge.split(" -> ")
         dot.edge(src, dst, label=str(count))
+
+    # force layout to be consistent with invisible edges
+    dot.attr('edge', style='invis')
+    src_aoi = aoi_data[0]
+    for aoi in aoi_data[1:]:
+        dot.edge(src_aoi['area'], aoi['area'])
+        src_aoi = aoi
 
     dot.render(directory=folderpath)
     print(folderpath+outfile+".gv.png")
